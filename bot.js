@@ -93,24 +93,24 @@ client.on('messageCreate', async message => {
   if (command === 'ping') {
     message.channel.send('Pong.');
   } else if (command === 'embedTest') {
-    const exampleEmbed = new MessageEmbed()
-      .setColor('#0099ff')
-      .setTitle('test')
-      .setURL('https://discord.js.org/')
-      .setAuthor('twoja stara', 'https://i.imgur.com/wSTFkRM.png', 'https://discord.js.org')
-      .setDescription('nwm co tu napisac')
-      .setThumbnail('https://i.imgur.com/wSTFkRM.png')
-      .addFields(
-        { name: '1', value: '1' },
-        { name: '\u200B', value: '\u200B' },
-        { name: '2', value: '2', inline: true },
-        { name: '3', value: '3', inline: true },
-      )
-      .addField('4', '4', true)
-      .setImage('https://i.imgur.com/wSTFkRM.png')
-      .setTimestamp()
-      .setFooter('xD', 'https://i.imgur.com/wSTFkRM.png');
-
+    const exampleEmbed = new EmbedBuilder()
+    .setColor(0x0099FF)
+    .setTitle('Some title')
+    .setURL('https://discord.js.org/')
+    .setAuthor({ name: 'Some name', iconURL: 'https://i.imgur.com/AfFp7pu.png', url: 'https://discord.js.org' })
+    .setDescription('Some description here')
+    .setThumbnail('https://i.imgur.com/AfFp7pu.png')
+    .addFields(
+      { name: 'Regular field title', value: 'Some value here' },
+      { name: '\u200B', value: '\u200B' },
+      { name: 'Inline field title', value: 'Some value here', inline: true },
+      { name: 'Inline field title', value: 'Some value here', inline: true },
+    )
+    .addFields({ name: 'Inline field title', value: 'Some value here', inline: true })
+    .setImage('https://i.imgur.com/AfFp7pu.png')
+    .setTimestamp()
+    .setFooter({ text: 'Some footer text here', iconURL: 'https://i.imgur.com/AfFp7pu.png' });
+  
     message.channel.send({ embeds: [exampleEmbed] });
   } else if (command === 'setprofile') {
     if (config.OwnerIDs.includes(message.author.id)) {
@@ -242,7 +242,7 @@ client.on('messageCreate', async message => {
         message.channel.send(`<@${user.username}> za wolno! ha! debil(ka) wygrywa!`);
       }
     });
-  } else if (command === "help") {
+  } else if (command === "code") {
     message.channel.send(`https://github.com/Zakkina-AmongUs/rainbot/blob/main/bot.js -- read the source code for commands`)
   } else if (command == "emoteid") {
     const emoji = message.content.match(/<a?:\w+:(\d+)>/);
@@ -255,6 +255,23 @@ client.on('messageCreate', async message => {
     } else {
       message.channel.send('No valid emoji found in the message.');
     }
+  } else if (command === "cmds" || command === "help") {
+    const helpEmbed = new EmbedBuilder()
+    .setColor(0x009900)
+    .setTitle(`${config.prefix}cmds`)
+    .setAuthor({ name: 'rain', iconURL: 'https://cdn.discordapp.com/avatars/1260916274804953171/10b924a18043f108a7799584be05d93e.webp?size=1024' })
+    .setDescription('All commands <3')
+    .setThumbnail('https://cdn.discordapp.com/avatars/1260916274804953171/10b924a18043f108a7799584be05d93e.webp?size=1024')
+    .addFields(
+      { name: 'Moderation', value: `botban - Ban someone from the bot. \n botunban - Obvious. \n more when i feel like it` },
+      { name: '\u200B', value: '\u200B' },
+      { name: 'Games', value: 'rollbattle - test your luck against someone \n guess - soon \n more when i feel like it'},
+      { name: 'Other', value: 'emoteid - get emote ID of any non-FakeNitro emoji \n pfp|profile|author - get someone\'s profile picture'},
+      { name: 'Danger', value: `NORMAL USERS CAN NOT USE THIS!\n\n eval - run ANY code\n\n bot/emojiadd - add any image as an emoji to the bot's emoji server`}
+    )
+    
+    message.channel.send({ embeds: [helpEmbed] });
+    message.channel.send(`This could be inaccurate -- it is a very early version that i may forget to update! \n Use \"${config.prefix}code\" for the source code (always has the latest commands)`)
   }
 });
 

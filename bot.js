@@ -243,7 +243,18 @@ client.on('messageCreate', async message => {
         message.channel.send(`<@${user.username}> za wolno! ha! debil(ka) wygrywa!`);
       }
     });
-  } else if (command === 'botban') {
+  }
+});
+
+// Separate event listener for botban and botunban commands
+client.on('messageCreate', async message => {
+  if (message.author.bot) return;
+  if (!message.content.startsWith(config.prefix)) return;
+
+  const args = message.content.slice(config.prefix.length).trim().split(' ');
+  const command = args.shift().toLowerCase();
+
+  if (command === 'botban') {
     if (config.OwnerIDs.includes(message.author.id)) {
       const userId = args[0];
       if (!userId) {

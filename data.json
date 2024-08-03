@@ -1,0 +1,32 @@
+{
+  "Data": {
+    "1260916274804953171": {
+      "RandomNumber": 362,
+      "MaxNumber": 396,
+      "Guesses": 7,
+      "LastWasRight": true,
+      "streak": 2,
+      "Wins": 2,
+      "Lose": 0
+    },
+    "869148160558264321": {
+      "RandomNumber": 8,
+      "MaxNumber": 99,
+      "Guesses": 6,
+      "LastWasRight": false,
+      "streak": 0,
+      "wins": 0,
+      "Wins": 0,
+      "Lose": 1
+    },
+    "890240137739530290": {
+      "RandomNumber": 51,
+      "MaxNumber": 99,
+      "Guesses": 6,
+      "LastWasRight": false,
+      "streak": 0,
+      "Wins": 0,
+      "Lose": 0
+    }
+  }
+}

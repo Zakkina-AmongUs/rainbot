@@ -3,6 +3,7 @@ const dotenv = require('dotenv');
 const config = require('./config.json');
 dotenv.config();
 const { REST, Routes, Client, GatewayIntentBits, EmbedBuilder, MessageActivityType } = require('discord.js');
+const { stringify } = require('querystring');
 
 // Define commands
 const commands = [
@@ -250,7 +251,7 @@ client.on('messageCreate', async message => {
       }
     });
   } else if (command === "code") {
-    message.channel.send(`https://github.com/Zakkina-AmongUs/rainbot/blob/main/bot.js -- read the source code for commands`)
+    message.channel.send(`https://github.com/Zakkina-AmongUs/rainbot/blob/stable/bot.js`)
   } else if (command == "emoteid") {
     const emoji = message.content.match(/<a?:\w+:(\d+)>/);
     if (emoji) {
@@ -268,103 +269,233 @@ client.on('messageCreate', async message => {
     .setTitle(`${config.prefix}cmds`)
     .setAuthor({ name: 'rain', iconURL: 'https://cdn.discordapp.com/avatars/1260916274804953171/10b924a18043f108a7799584be05d93e.webp?size=1024' })
     .setDescription('All commands <3')
+    .setFooter({text: "More can and will be added, so check every update!"})
     .setThumbnail('https://cdn.discordapp.com/avatars/1260916274804953171/10b924a18043f108a7799584be05d93e.webp?size=1024')
     .addFields(
       { name: 'Moderation', value: `botban <userID> - Ban someone from the bot. \n botunban - Obvious. \n more when i feel like it` },
       { name: '\u200B', value: '\u200B' },
-      { name: 'Games', value: 'rollbattle <user> - test your luck against someone \n guess - soon \n more when i feel like it'},
+      { name: 'Games', value: 'rollbattle <user> - test your luck against someone \n guess <number> -- Guessing game. Type for more information! \n guessreset -- Reset ur data in guess. \n guessleaderboard -- Pretty obvious. \n\n\n more when i feel like it'},
       { name: 'Other', value: 'emoteid <emotji> - get emote ID of any non-FakeNitro emoji \n \"pfp\" | \"profile\" | \"author\" <user> - get someone\'s profile picture'},
       { name: 'Danger', value: `NORMAL USERS CAN NOT USE THIS!\n\n eval <JavaScript> - run ANY code\n\n \"bot/emojiadd\" <image URL> - add any image as an emoji to the bot's emoji server`}
     )
     
+    
     message.channel.send({ embeds: [helpEmbed] });
     message.channel.send(`This could be inaccurate -- it is a very early version that i may forget to update! \n Use \"${config.prefix}code\" for the source code (always has the latest commands)`)
   } else if (command === "guess") {
-    const path = "./data.json";
-    let data;
-
-    // Check if the file exists
-    if (fs.existsSync(path)) {
-        // If it exists, read and parse the file
-        data = JSON.parse(fs.readFileSync(path, 'utf8'));
-    } else {
-        // If it doesn't exist, initialize with an empty structure
-        data = { Data: {} };
+      const path = "./data.json";
+      let data;
+    
+      // Check if the file exists
+      if (fs.existsSync(path)) {
+          // If it exists, read and parse the file
+          data = JSON.parse(fs.readFileSync(path, 'utf8'));
+      } else {
+          // If it doesn't exist, initialize with an empty structure
+          data = { Data: {} };
+      }
+  
+      // Ensure the necessary structure exists
+      if (typeof data.Data[message.author.id] === 'undefined') {
+          data.Data[message.author.id] = {};
+      }
+      if (typeof data.Data[message.author.id]["RandomNumber"] === 'undefined') {
+          data.Data[message.author.id]["RandomNumber"] = -1;
+      }
+      if (typeof data.Data[message.author.id]["MaxNumber"] === 'undefined') {
+          data.Data[message.author.id]["MaxNumber"] = 99;
+      }
+      if (typeof data.Data[message.author.id]["Guesses"] === 'undefined') {
+          data.Data[message.author.id]["Guesses"] = 7;
+      }
+      if (typeof data.Data[message.author.id]["LastWasRight"] === 'undefined') {
+          data.Data[message.author.id]["LastWasRight"] = false;
+      }
+      if (typeof data.Data[message.author.id]["streak"] === 'undefined') {
+          data.Data[message.author.id]["streak"] = 0;
+      }
+      if (typeof data.Data[message.author.id]["Wins"] === 'undefined') {
+        data.Data[message.author.id]["Wins"] = 0;
     }
-
-    // Ensure the necessary structure exists
-    if (!data.Data[message.author.id]) {
-        data.Data[message.author.id] = { "RandomNumber": -1 };
-    } if (!data.Data[message.author.id]["RandomNumber"]) {
-        data.Data[message.author.id]["RandomNumber"] = -1;
+    if (typeof data.Data[message.author.id]["Lose"] === 'undefined') {
+        data.Data[message.author.id]["Lose"] = 0;
     }
-    if (!data.Data[message.author.id]["MaxNumber"]) {
-      data.Data[message.author.id]["MaxNumber"] = 99;
-   }
-   if (!data.Data[message.author.id]["Guesses"]) {
-    data.Data[message.author.id]["Guesses"] = -1;
- }
- if (!data.Data[message.author.id]["LastWasRight"]) {
-  data.Data[message.author.id]["LastWasRight"] = false;
-}
-if (!data.Data[message.author.id]["streak"]) {
-  data.Data[message.author.id]["streak"] = 0;
-}
-fs.writeFileSync(path, JSON.stringify(data, null, 2), 'utf8');
-   let guesses;
-    let maxNumber;
-    let lastWasRight;
-    data.Data[message.author.id]["MaxNumber"] = 99 * (data.Data[message.author.id]["streak"] + 1)
-    lastWasRight = data.Data[message.author.id]["LastWasRight"]
-    maxNumber = data.Data[message.author.id]["MaxNumber"]
-    // Assign a random number
-    if (data.Data[message.author.id]["RandomNumber"] <= 0) {
-      console.log(`${message.author.tag} ${JSON.stringify(data.Data[message.author.id])}`);
-      data.Data[message.author.id]["RandomNumber"] = Math.round(Math.random() * 99);
+  
       fs.writeFileSync(path, JSON.stringify(data, null, 2), 'utf8');
-      message.channel.send(`Welcome! Type ${config.prefix}guess <number> to, well, try to guess a number! The first number is between 0 and 99, and the higher your streak the higher the number will be!`)
-      return;
+  
+      let maxNumber;
+      let lastWasRight;
+  
+      data.Data[message.author.id]["MaxNumber"] = 99 * (data.Data[message.author.id]["streak"] + 1);
+      lastWasRight = data.Data[message.author.id]["LastWasRight"];
+      maxNumber = data.Data[message.author.id]["MaxNumber"];
+  
+      // Assign a random number
+      if (data.Data[message.author.id]["RandomNumber"] <= 0) {
+          console.log(`${message.author.tag} ${JSON.stringify(data.Data[message.author.id])}`);
+          data.Data[message.author.id]["RandomNumber"] = Math.round(Math.random() * maxNumber);
+          data.Data[message.author.id]["Guesses"] = 7;
+          data.Data[message.author.id]["Wins"] = 0;
+          data.Data[message.author.id]["Lose"] = 0;
+          fs.writeFileSync(path, JSON.stringify(data, null, 2), 'utf8');
+          message.channel.send(`Welcome! Type ${config.prefix}guess <number> to, well, try to guess a number! The first number is between 0 and 99, and the higher your streak the higher the number will be!`);
+          return;
+      }
+      const FailChannel = client.channels.cache.get("1269389282104184844")
+      const guessedNumber = parseInt(args[0], 10);
+      if (isNaN(guessedNumber)) {
+        if (args[0] == "giveup") {
+          try {
+          message.channel.send("Very well. The number was " + data.Data[message.author.id]["RandomNumber"])
+          } catch (error) {
+            message.channel.send("Make sure your DMs are open!")
+            return;
+          }
+          FailChannel.send(`<@${message.author.id}> gave up. Their number was ${data.Data[message.author.id]["RandomNumber"]}.`)
+          data.Data[message.author.id]["MaxNumber"] = 99;
+
+              data.Data[message.author.id]["LastWasRight"] = false;
+              data.Data[message.author.id]["streak"] = 0;
+              let streak = 0;
+              data.Data[message.author.id]["Lose"] += 1
+              difficulty = Math.max(1, Math.pow(streak / 2, 1.15) * 6);
+              data.Data[message.author.id]["Guesses"] = Math.round(Math.min(Math.max(7, ((difficulty ^ 0.68) / 4) * 2), 30))
+              data.Data[message.author.id]["RandomNumber"] = Math.round(Math.random() * 99);
+              return;
+        } else {
+          message.channel.send("Please provide a valid number.");
+          return;
+      }
     }
-    if (lastWasRight) {
-      console.log(`${message.author.tag} ${JSON.stringify(data.Data[message.author.id])}`);
-      data.Data[message.author.id]["RandomNumber"] = Math.round(Math.random() * maxNumber);
-    }
-    if (args[0] === data.Data[message.author.id]["RandomNumber"]) {
-      let difficulty;
-      let streak;
-      streak = data.Data[message.author.id]["streak"]
-      difficulty = Math.max(1, ((streak / 2)^1.15)*8)
-      message.channel.send("you got it right. ok cool. next number is between 0 and " + (maxNumber+maxNumber))
-      data.Data[message.author.id]["MaxNumber"] = maxNumber + maxNumber
-      maxNumber = data.Data[message.author.id]["MaxNumber"]
-      data.Data[message.author.id]["LastWasRight"] = true
-      data.Data[message.author.id]["streak"] += 1
-      data.Data[message.author.id]["guesses"] = Math.max(6, ((difficulty * 1.07) / 3) * 5)
-    } else {
-      console.log()
-         data.Data[message.author.id]["guesses"] -= 1
-         if (data.Data[message.author.id]["guesses"] <= 0) {
+  
+      if (guessedNumber === data.Data[message.author.id]["RandomNumber"]) {
           let difficulty;
           let streak;
-          streak = data.Data[message.author.id]["streak"]
-          message.channel.send("you fucked up. cool. anyway, restart. 0-99, you get the point")
-          data.Data[message.author.id]["MaxNumber"] = 99
-          maxNumber = data.Data[message.author.id]["MaxNumber"]
-          data.Data[message.author.id]["LastWasRight"] = false
-          data.Data[message.author.id]["streak"] = 0
-          difficulty = Math.max(1, ((streak / 2)^1.15)*8)
-          data.Data[message.author.id]["guesses"] = Math.max(6, ((difficulty * 1.07) / 3) * 5)
-          data.Data[message.author.id]["RandomNumber"] = Math.round(Math.random() * 99)
-          return
-         }
-         if (args[0] > data.Data[message.author.id]["RandomNumber"]) {
-          message.channel.send("a little too high there bud, try again")
-         } else {
-          message.channel.send("nope. go higher")
-         }
+          streak = data.Data[message.author.id]["streak"];
+          FailChannel.send(`<@${message.author.id}> won!. New streak: ${data.Data[message.author.id]["streak"] + 1}, the number was ${data.Data[message.author.id]["RandomNumber"]}!`)
+          try {
+          message.channel.send(`You got it right! The next number is between 0 and ${maxNumber + maxNumber}, Guesses: ${Math.round(Math.min(Math.max(6, ((difficulty ^ 0.68) / 4) * 2), 30))}`);
+        } catch (error) {
+          message.channel.send("Make sure your DMs are open! you got the number right btw but it didnt count cuz error")
+          return;
+        }
+          data.Data[message.author.id]["MaxNumber"] = maxNumber + maxNumber;
+          data.Data[message.author.id]["LastWasRight"] = true;
+          data.Data[message.author.id]["streak"] += 1;
+          difficulty = Math.max(1, Math.pow(streak / 2, 1.15) * 6);
+          data.Data[message.author.id]["Guesses"] = Math.round(Math.min(Math.max(7, ((difficulty ^ 0.58) / 5) * 2), 30))
+          data.Data[message.author.id]["RandomNumber"] = Math.round(Math.random() * data.Data[message.author.id]["MaxNumber"]);
+          data.Data[message.author.id]["Wins"] += 1
+      } else {
+          data.Data[message.author.id]["Guesses"] -= 1;
+          if (data.Data[message.author.id]["Guesses"] <= 0) {
+              let difficulty;
+              let streak;
+              streak = data.Data[message.author.id]["streak"];
+              try {
+              message.channel.send("You ran out of guesses. Number:" + data.Data[message.author.id]["RandomNumber"] + "Restarting... The new number is between 0 and 99." + ` Guesses: ${data.Data[message.author.id]["Guesses"]}`);
+              FailChannel.send(`<@${message.author.id}> failed. Streak lost: ${data.Data[message.author.id]["streak"]}, their last guess was ${guessedNumber}, while the number was ${data.Data[message.author.id]["RandomNumber"]}!`)
+            } catch (error) {
+              message.channel.send("Make sure your DMs are open!")
+              return;
+            }
+              data.Data[message.author.id]["MaxNumber"] = 99;
+              data.Data[message.author.id]["LastWasRight"] = false;
+              data.Data[message.author.id]["streak"] = 0;
+              data.Data[message.author.id]["Lose"] += 1
+              difficulty = Math.max(1, Math.pow(streak / 2, 1.15) * 6);
+              data.Data[message.author.id]["Guesses"] = Math.round(Math.min(Math.max(7, ((difficulty ^ 0.68) / 4) * 2), 30))
+              data.Data[message.author.id]["RandomNumber"] = Math.round(Math.random() * 99);
+          } else {
+              if (guessedNumber > data.Data[message.author.id]["RandomNumber"]) {
+                try {
+                  message.channel.send("A little too high. Try again." + ` Guesses: ${data.Data[message.author.id]["Guesses"]}`);
+                } catch (error) {
+                  message.channel.send("Make sure your DMs are open!")
+                  return;
+                }
+              } else {
+                try {
+                  message.channel.send("Too low. Go higher." + ` Guesses: ${data.Data[message.author.id]["Guesses"]}`);
+                } catch (error) {
+                  message.channel.send("Make sure your DMs are open!")
+                  return;
+                }
+              }
+          }
+      }
+      console.log(message.author.user + " " + JSON.stringify(data, null, 2))
+      fs.writeFileSync(path, JSON.stringify(data, null, 2), 'utf8');
+  } else if (command === "guessreset") {
+    const path = "./data.json";
+      let data;
+  
+      // Check if the file exists
+      if (fs.existsSync(path)) {
+          // If it exists, read and parse the file
+          data = JSON.parse(fs.readFileSync(path, 'utf8'));
+      } else {
+          // If it doesn't exist, initialize with an empty structure
+          data = { Data: {} };
+      }
+      data.Data[message.author.id] = {}
+      try {
+      message.channel.send("Deleted data for ID " + message.author.id)
+      } catch (error) {
+        message.channel.send("Make sure your DMs are open!")
+        return;
       }
       fs.writeFileSync(path, JSON.stringify(data, null, 2), 'utf8');
+  } else if (command === "guessleaderboard") {
+    console.log("guessleaderboard command received");
+
+    let data;
+    let path = "./data.json";
+
+    // Check if the file exists and parse the file
+    if (fs.existsSync(path)) {
+        data = JSON.parse(fs.readFileSync(path, 'utf8'));
+        console.log("Data file read successfully");
+    } else {
+        console.log("Data file does not exist");
+        return message.channel.send("Sorry, you don't have any data so the bot would crash <3 Play guess a bit first?");
     }
+
+    // Check if the user has data
+    if (!data.Data[message.author.id]) {
+        console.log("User does not have data");
+        return message.channel.send("Sorry, you don't have any data so the bot would crash <3 Play guess a bit first?");
+    }
+
+    // Create an array of { userId, wins } objects
+    let lbArray = [];
+    for (let userId in data.Data) {
+        if (data.Data[userId].Wins !== undefined) {
+            lbArray.push({ userId: userId, wins: data.Data[userId]["Wins"] });
+        }
+    }
+
+    console.log("Leaderboard array created", lbArray);
+
+    // Sort the array in descending order based on wins
+    lbArray.sort((a, b) => b.wins - a.wins);
+
+    // Create an array of the top users
+    let topArray = [];
+    for (let i = 0; i < lbArray.length && i < 10; i++) { // Limiting to top 10 users
+        topArray.push(`${i + 1} - <@${lbArray[i].userId}> - Wins: ${lbArray[i].wins}`);
+    }
+
+    console.log("Top array created", topArray);
+
+    // Convert the array to a string and send it as a message
+    let stringArray = topArray.join('\n');
+    message.channel.send(stringArray);
+    console.log("Leaderboard sent to channel");
+}
+
+
+  
 });
 
 // Separate event listener for botban and botunban commands

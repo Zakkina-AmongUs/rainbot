@@ -4,3 +4,4 @@ This bot will not function on servers other than Event Horizon without major adj
 Event Horizon: https://discord.com/invite/mhuwAMhpC8
 
 ## The whole reason this repo exists is so people don't ask for a help command. Just look at the code -.-
+## V1 has been the biggest update so far, only one command but almost doubled the length of the bot.js file

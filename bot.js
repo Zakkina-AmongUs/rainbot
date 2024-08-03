@@ -1,10 +1,9 @@
 const fs = require('fs');
 const dotenv = require('dotenv');
 const config = require('./config.json');
-
 dotenv.config();
 
-const { REST, Routes, Client, GatewayIntentBits } = require('discord.js');
+const { REST, Routes, Client, GatewayIntentBits, MessageEmbed } = require('discord.js');
 
 // Define commands
 const commands = [
@@ -41,40 +40,40 @@ client.on('ready', () => {
   console.log(`Logged in as ${client.user.tag}!`);
   const { ActivityType } = require('discord.js');
   client.user.setActivity('you', { type: ActivityType.Watching });
-  client.user.setStatus('dnd')
+  client.user.setStatus('dnd');
   const newNickname = `rain ${config.botVersion} (${config.prefix})`;
-       try {
-        const guild = client.guilds.cache.get("1268238059191795794");
-    
-        if (guild) {
-          const botMember = guild.members.cache.get(client.user.id);
-    
-          if (botMember) {
-            botMember.setNickname(newNickname);
-            console.log(`Nickname changed to "${newNickname}" in guild "${guild.name}".`);
-          } else {
-            console.error('Bot is not a member of the guild or the member cache is not available.');
-          }
-        } else {
-          console.error('Guild not found.');
-        }
-      } catch (error) {
-        console.error('Error changing nickname:', error);
+  try {
+    const guild = client.guilds.cache.get("1268238059191795794");
+
+    if (guild) {
+      const botMember = guild.members.cache.get(client.user.id);
+
+      if (botMember) {
+        botMember.setNickname(newNickname);
+        console.log(`Nickname changed to "${newNickname}" in guild "${guild.name}".`);
+      } else {
+        console.error('Bot is not a member of the guild or the member cache is not available.');
       }
+    } else {
+      console.error('Guild not found.');
+    }
+  } catch (error) {
+    console.error('Error changing nickname:', error);
+  }
   setTimeout(() => {
-    const WelcomeChannel = client.channels.cache.get("1269249270100398091")
-    WelcomeChannel.send(`-----------------\nLogged in as ${client.user.tag}`)
+    const WelcomeChannel = client.channels.cache.get("1269249270100398091");
+    WelcomeChannel.send(`-----------------\nLogged in as ${client.user.tag}`);
     setTimeout(() => {
       const currentDate = new Date().toLocaleString();
-      const WelcomeChannel = client.channels.cache.get("1269249270100398091")
-      WelcomeChannel.send(`PREFIX: ${config.prefix}\nDEFAULT PREFIX: ${config.defaultprefix}\nDATE: ${currentDate}`)
+      const WelcomeChannel = client.channels.cache.get("1269249270100398091");
+      WelcomeChannel.send(`PREFIX: ${config.prefix}\nDEFAULT PREFIX: ${config.defaultprefix}\nDATE: ${currentDate}`);
       setTimeout(() => {
         const currentDate = new Date().toLocaleString();
-        const WelcomeChannel = client.channels.cache.get("1269249270100398091")
-        WelcomeChannel.send(`<@` + config.OwnerIDs[0] + `>`)
-      }, 1000)
-    }, 1000)
-  }, 1000)
+        const WelcomeChannel = client.channels.cache.get("1269249270100398091");
+        WelcomeChannel.send(`<@${config.OwnerIDs[0]}>`);
+      }, 1000);
+    }, 1000);
+  }, 1000);
 });
 
 client.on('interactionCreate', async interaction => {
@@ -87,6 +86,7 @@ client.on('interactionCreate', async interaction => {
 
 client.on('messageCreate', async message => {
   if (message.author.bot) return;
+  if (config.ban && config.ban.includes(message.author.id)) return;
 
   const args = message.content.slice(config.prefix.length).trim().split(' ');
   const command = args.shift().toLowerCase();
@@ -94,7 +94,7 @@ client.on('messageCreate', async message => {
   if (command === 'ping') {
     message.channel.send('Pong.');
   } else if (command === 'embedTest') {
-    const exampleEmbed = new Discord.MessageEmbed()
+    const exampleEmbed = new MessageEmbed()
       .setColor('#0099ff')
       .setTitle('test')
       .setURL('https://discord.js.org/')
@@ -118,15 +118,15 @@ client.on('messageCreate', async message => {
       if (args.length === 1 && (args[0].startsWith("http://") || args[0].startsWith("https://")) && args[0].includes("i.imgur.com/")) {
         try {
           client.user.setAvatar(args[0]);
-          message.channel.send("Set avatar to image:" + args[0])
+          message.channel.send("Set avatar to image:" + args[0]);
         } catch (error) {
-          message.channel.send(error + "\n\nPlease DM _lostinthought_ (rain) with this error and a screenshot with AT LEAST 3 messages of context.")
+          message.channel.send(error + "\n\nPlease DM _lostinthought_ (rain) with this error and a screenshot with AT LEAST 3 messages of context.");
         }
       } else {
-        message.channel.send("Argument 1 not found or not a valid/supported URL.\nThe only supported URL is i.imgur.com/ as of bot version " + config.botVersion)
+        message.channel.send("Argument 1 not found or not a valid/supported URL.\nThe only supported URL is i.imgur.com/ as of bot version " + config.botVersion);
       }
     } else {
-      message.channel.send("You are not permitted to perform this action.")
+      message.channel.send("You are not permitted to perform this action.");
     }
   } else if (command === 'setprefix') {
     if (config.OwnerIDs.includes(message.author.id)) {
@@ -146,13 +146,13 @@ client.on('messageCreate', async message => {
 
           message.channel.send(`Set prefix to: ${args[0]} and updated nickname to: ${newNickname}`);
         } catch (error) {
-          message.channel.send(error + "\n\nPlease inform _lostinthought_ (rain) of this error.")
+          message.channel.send(error + "\n\nPlease inform _lostinthought_ (rain) of this error.");
         }
       } else {
-        message.channel.send("Argument 1 not found or not a valid prefix.\nSupported prefix length is between 1 and 5 characters.")
+        message.channel.send("Argument 1 not found or not a valid prefix.\nSupported prefix length is between 1 and 5 characters.");
       }
     } else {
-      message.channel.send("You are not permitted to perform this action.")
+      message.channel.send("You are not permitted to perform this action.");
     }
   } else if (command === 'bot/addemoji') {
     if (config.OwnerIDs.includes(message.author.id)) {
@@ -198,13 +198,86 @@ client.on('messageCreate', async message => {
     const avatarUrl = user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 });
 
     // Send the avatar URL in an embed
-    const embed = new EmbedBuilder()
+    const embed = new MessageEmbed()
       .setTitle(`${user.username}'s pfp`)
       .setImage(avatarUrl)
       .setColor('#0099ff')
-      .setFooter({ text: `requested by ${message.author.tag}`});
+      .setFooter(`requested by ${message.author.tag}`);
 
     message.channel.send({ embeds: [embed] });
+  } else if (command === 'rollbattle') {
+    if (args.length < 1) {
+      return message.channel.send("Argument [1] nie znaleziony.");
+    }
+
+    const user = message.mentions.users.first();
+
+    if (!user) {
+      return message.channel.send("pinguj kogos.");
+    }
+
+    const challengerRoll = Math.floor(Math.random() * 100) + 1;
+    await message.author.send(`You rolled: ${challengerRoll}`);
+
+    message.channel.send(`<@${user.id}>, debil(ka) chce z toba walczyc, napisz ${config.prefix}rollreply i rozjeb`);
+
+    const filter = response => response.content === config.prefix + 'rollreply' && response.author.id === user.id;
+    const collector = message.channel.createMessageCollector({ filter, time: 300000 });
+
+    collector.on('collect', async () => {
+      collector.stop();
+      const opponentRoll = Math.floor(Math.random() * 100) + 1;
+      await user.send(`You rolled: ${opponentRoll}`);
+
+      if (challengerRoll > opponentRoll) {
+        message.channel.send(`${message.author.username} wygrywa z ${challengerRoll} przeciwko ${user.username}, co ma ${opponentRoll}! EZ`);
+      } else if (challengerRoll < opponentRoll) {
+        message.channel.send(`${user.username} wygrywa z ${opponentRoll} przeciwko ${message.author.username}, co ma ${challengerRoll}! EZ`);
+      } else {
+        message.channel.send(`tyle samo korwa ${challengerRoll}!`);
+      }
+    });
+
+    collector.on('end', collected => {
+      if (collected.size === 0) {
+        message.channel.send(`<@${user.username}> za wolno! ha! debil(ka) wygrywa!`);
+      }
+    });
+  } else if (command === 'botban') {
+    if (config.OwnerIDs.includes(message.author.id)) {
+      const userId = args[0];
+      if (!userId) {
+        return message.channel.send("Please provide a user ID to ban.");
+      }
+      if (!config.ban) {
+        config.ban = [];
+      }
+      if (!config.ban.includes(userId)) {
+        config.ban.push(userId);
+        fs.writeFileSync('./config.json', JSON.stringify(config, null, 2), 'utf8');
+        message.channel.send(`User ID ${userId} has been banned from using the bot.`);
+      } else {
+        message.channel.send(`User ID ${userId} is already banned.`);
+      }
+    } else {
+      message.channel.send("You are not permitted to perform this action.");
+    }
+  } else if (command === 'botunban') {
+    if (config.OwnerIDs.includes(message.author.id)) {
+      const userId = args[0];
+      if (!userId) {
+        return message.channel.send("Please provide a user ID to unban.");
+      }
+      if (config.ban && config.ban.includes(userId)) {
+        config.ban = config.ban.filter(id => id !== userId);
+        fs.writeFileSync('./config.json', JSON.stringify(config, null, 2), 'utf8');
+        message.channel.send(`User ID ${userId} has been unbanned from using the bot.`);
+      } else {
+        message.channel.send(`User ID ${userId} is not banned.`);
+      }
+    } else {
+      message.channel.send("You are not permitted to perform this action.");
+    }
   }
 });
 

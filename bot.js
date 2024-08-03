@@ -198,10 +198,13 @@ client.on('messageCreate', async message => {
 
     // Send the avatar URL in an embed
     const embed = new EmbedBuilder()
-      .setTitle(`${user.username}'s pfp`)
-      .setImage(avatarUrl)
-      .setColor('#0099ff')
-      .setFooter(`requested by ${message.author.tag}`);
+    .setTitle(`${user.username}'s pfp`)
+    .setImage(avatarUrl)
+    .setColor('#0099ff')
+    .setFooter({ text: `requested by ${message.author.tag}` });
+  
+  message.channel.send({ embeds: [embed] });
+  
 
     message.channel.send({ embeds: [embed] });
   } else if (command === 'rollbattle') {

@@ -169,7 +169,7 @@ client.on('messageCreate', async message => {
 
         // Create the emoji
         await guild.emojis.create({ attachment: emojiUrl, name: emojiName });
-        message.channel.send(`Emoji ${emojiName} added successfully.`);
+        message.channel.send(`Emoji ${emojiName} added successfully. \nGuildInfo: name="rainEmojis", private`);
       } catch (error) {
         message.channel.send(`Failed to add emoji: ${error.message}`);
       }
@@ -204,9 +204,6 @@ client.on('messageCreate', async message => {
     .setFooter({ text: `requested by ${message.author.tag}` });
   
   message.channel.send({ embeds: [embed] });
-  
-
-    message.channel.send({ embeds: [embed] });
   } else if (command === 'rollbattle') {
     if (args.length < 1) {
       return message.channel.send("Argument [1] nie znaleziony.");
@@ -247,11 +244,23 @@ client.on('messageCreate', async message => {
     });
   } else if (command === "help") {
     message.channel.send(`https://github.com/Zakkina-AmongUs/rainbot/blob/main/bot.js -- read the source code for commands`)
+  } else if (command == "emoteid") {
+    const emoji = message.content.match(/<a?:\w+:(\d+)>/);
+    if (emoji) {
+      try {
+      message.channel.send(`Emoji ID: ${emoji[1]} \n For botscript: \`\`\`${args[0]}\`\`\``);
+      } catch (error) {
+        message.channel.send(`${error} -- Could not get emoji name.`)
+      }
+    } else {
+      message.channel.send('No valid emoji found in the message.');
+    }
   }
 });
 
 // Separate event listener for botban and botunban commands
 client.on('messageCreate', async message => {
+  try {
   if (message.author.bot) return;
   if (!message.content.startsWith(config.prefix)) return;
 
@@ -270,7 +279,7 @@ client.on('messageCreate', async message => {
       if (!config.ban.includes(userId)) {
         config.ban.push(userId);
         fs.writeFileSync('./config.json', JSON.stringify(config, null, 2), 'utf8');
-        message.channel.send(`User ID ${userId} has been banned from using the bot.`);
+        message.channel.send(`User ID ${userId} has been banned from using the bot. <:shwdow:1269277537910001797>`);
       } else {
         message.channel.send(`User ID ${userId} is already banned.`);
       }
@@ -286,13 +295,16 @@ client.on('messageCreate', async message => {
       if (config.ban && config.ban.includes(userId)) {
         config.ban = config.ban.filter(id => id !== userId);
         fs.writeFileSync('./config.json', JSON.stringify(config, null, 2), 'utf8');
-        message.channel.send(`User ID ${userId} has been unbanned from using the bot.`);
+        message.channel.send(`User ID ${userId} has been unbanned from using the bot. <:rain:1269277891485761651>`);
       } else {
         message.channel.send(`User ID ${userId} is not banned.`);
       }
     } else {
       message.channel.send("You are not permitted to perform this action.");
     }
+  }
+  } catch {
+    message.channel.send(`${error}\n\nSomething went wrong. Context: ${message.content}\n\n <@1260916274804953171>`)
   }
 });
 

@@ -84,8 +84,15 @@ client.on('interactionCreate', async interaction => {
 });
 
 client.on('messageCreate', async message => {
-  if (message.author.bot) return;
-  if (config.ban && config.ban.includes(message.author.id)) return;
+  if (message.author.bot) {return;}
+  if (config.ban && config.ban.includes(message.author.id)) {
+    if (message.content.startsWith(config.prefix)) {
+        message.channel.send("co za debil! <:haha:1269312976595320905> wypierdalaj kurwa.");
+        message.member.timeout(60 * 1000) // 20 seconds
+            .catch(console.error);
+    }
+    return;
+}
 
   const args = message.content.slice(config.prefix.length).trim().split(' ');
   const command = args.shift().toLowerCase();
@@ -263,11 +270,11 @@ client.on('messageCreate', async message => {
     .setDescription('All commands <3')
     .setThumbnail('https://cdn.discordapp.com/avatars/1260916274804953171/10b924a18043f108a7799584be05d93e.webp?size=1024')
     .addFields(
-      { name: 'Moderation', value: `botban - Ban someone from the bot. \n botunban - Obvious. \n more when i feel like it` },
+      { name: 'Moderation', value: `botban <userID> - Ban someone from the bot. \n botunban - Obvious. \n more when i feel like it` },
       { name: '\u200B', value: '\u200B' },
-      { name: 'Games', value: 'rollbattle - test your luck against someone \n guess - soon \n more when i feel like it'},
-      { name: 'Other', value: 'emoteid - get emote ID of any non-FakeNitro emoji \n pfp|profile|author - get someone\'s profile picture'},
-      { name: 'Danger', value: `NORMAL USERS CAN NOT USE THIS!\n\n eval - run ANY code\n\n bot/emojiadd - add any image as an emoji to the bot's emoji server`}
+      { name: 'Games', value: 'rollbattle <user> - test your luck against someone \n guess - soon \n more when i feel like it'},
+      { name: 'Other', value: 'emoteid <emotji> - get emote ID of any non-FakeNitro emoji \n \"pfp\" | \"profile\" | \"author\" <user> - get someone\'s profile picture'},
+      { name: 'Danger', value: `NORMAL USERS CAN NOT USE THIS!\n\n eval <JavaScript> - run ANY code\n\n \"bot/emojiadd\" <image URL> - add any image as an emoji to the bot's emoji server`}
     )
     
     message.channel.send({ embeds: [helpEmbed] });

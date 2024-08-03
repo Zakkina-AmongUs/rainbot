@@ -197,7 +197,7 @@ client.on('messageCreate', async message => {
     const avatarUrl = user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 });
 
     // Send the avatar URL in an embed
-    const embed = new MessageEmbed()
+    const embed = new EmbedBuilder()
       .setTitle(`${user.username}'s pfp`)
       .setImage(avatarUrl)
       .setColor('#0099ff')

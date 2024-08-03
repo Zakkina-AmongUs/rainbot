@@ -2,8 +2,7 @@ const fs = require('fs');
 const dotenv = require('dotenv');
 const config = require('./config.json');
 dotenv.config();
-
-const { REST, Routes, Client, GatewayIntentBits, MessageEmbed } = require('discord.js');
+const { REST, Routes, Client, GatewayIntentBits, EmbedBuilder } = require('discord.js');
 
 // Define commands
 const commands = [
@@ -243,6 +242,8 @@ client.on('messageCreate', async message => {
         message.channel.send(`<@${user.username}> za wolno! ha! debil(ka) wygrywa!`);
       }
     });
+  } else if (command === "help") {
+    message.channel.send(`https://github.com/Zakkina-AmongUs/rainbot/blob/main/bot.js -- read the source code for commands`)
   }
 });
 

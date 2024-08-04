@@ -2,6 +2,7 @@ const fs = require('fs');
 const io = require("@pm2/io")
 const dotenv = require('dotenv');
 const config = require('./config.json');
+const private = require("./IMPORTANT.json")
 dotenv.config();
 const { REST, Routes, Client, GatewayIntentBits, EmbedBuilder, MessageActivityType } = require('discord.js');
 const { stringify } = require('querystring');
@@ -14,13 +15,13 @@ const commands = [
   },
 ];
 
-const rest = new REST({ version: '10' }).setToken(config.DISCORD_TOKEN);
+const rest = new REST({ version: '10' }).setToken(private.DISCORD_TOKEN);
 
 (async () => {
   try {
     console.log('Started refreshing application (/) commands.');
 
-    await rest.put(Routes.applicationCommands(config.CLIENT_ID), { body: commands });
+    await rest.put(Routes.applicationCommands(private.CLIENT_ID), { body: commands });
 
     console.log('Successfully reloaded application (/) commands.');
   } catch (error) {
@@ -645,7 +646,7 @@ client.on('messageCreate', async message => {
     if (typeof data.Data[message.author.id]["Oceny"] === 'undefined') {
       data.Data[message.author.id]["Oceny"] = 0;
     }
-    const mentionedUserId = message.mentions.users.first()?.id;
+    let mentionedUserId = message.mentions.users.first()?.id;
     if (mentionedUserId) {
       if (typeof data.Data[mentionedUserId] === 'undefined') {
         data.Data[mentionedUserId] = {};
@@ -716,7 +717,7 @@ client.on('messageCreate', async message => {
   if (typeof data.Data[message.author.id]["Oceny"] === 'undefined') {
     data.Data[message.author.id]["Oceny"] = 0;
   }
-  const mentionedUserId2 = message.mentions.users.first()?.id;
+  let mentionedUserId2 = message.mentions.users.first()?.id;
   if (mentionedUserId2) {
     if (typeof data.Data[mentionedUserId2] === 'undefined') {
       data.Data[mentionedUserId2] = {};
@@ -910,4 +911,4 @@ client.on('messageCreate', async message => {
   }
 });
 
-client.login(config.DISCORD_TOKEN);
+client.login(private.DISCORD_TOKEN);

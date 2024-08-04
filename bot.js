@@ -97,6 +97,10 @@ client.on('messageCreate', async message => {
 
   const args = message.content.slice(config.prefix.length).trim().split(' ');
   const command = args.shift().toLowerCase();
+  if (!message.content.startsWith(config.prefix)) {
+    return;
+  }
+
 
   if (command === 'ping') {
     message.channel.send('Pong.');
@@ -275,8 +279,18 @@ client.on('messageCreate', async message => {
       { name: 'Moderation', value: `botban <userID> - Ban someone from the bot. \n botunban - Obvious. \n more when i feel like it` },
       { name: '\u200B', value: '\u200B' },
       { name: 'Games', value: 'rollbattle <user> - test your luck against someone \n guess <number> -- Guessing game. Type for more information! \n guessreset -- Reset ur data in guess. \n guessleaderboard -- Pretty obvious. \n\n\n more when i feel like it'},
+<<<<<<< Updated upstream
       { name: 'Other', value: 'emoteid <emotji> - get emote ID of any non-FakeNitro emoji \n \"pfp\" | \"profile\" | \"author\" <user> - get someone\'s profile picture'},
       { name: 'Danger', value: `NORMAL USERS CAN NOT USE THIS!\n\n eval <JavaScript> - run ANY code\n\n \"bot/emojiadd\" <image URL> - add any image as an emoji to the bot's emoji server`}
+=======
+      { name: '\u200B', value: '\u200B' },
+      { name: 'Other', value: 'emoteid <emotji> - get emote ID of any non-FakeNitro emoji \n \"pfp\" | \"profile\" | \"avatar\" <user> - get someone\'s profile picture'},
+      { name: '\u200B', value: '\u200B' },
+      { name: 'Danger', value: `NORMAL USERS CAN NOT USE THIS!\n\n eval <JavaScript> - run ANY code\n\n \"bot/emojiadd\" <image URL> - add any image as an emoji to the bot's emoji server`},
+      { name: '\u200B', value: '\u200B' },
+      { name: 'Legacy', value: `Legacy commands (from Shwdow v2)\nThese commands will not be described or maintained.\n\n sex <user> \n publicsex <user> \n debil <user> \n ranking \n ocena <user>`}
+      
+>>>>>>> Stashed changes
     )
     
     
@@ -368,60 +382,78 @@ client.on('messageCreate', async message => {
       }
     }
   
-      if (guessedNumber === data.Data[message.author.id]["RandomNumber"]) {
-          let difficulty;
-          let streak;
-          streak = data.Data[message.author.id]["streak"];
-          FailChannel.send(`<@${message.author.id}> won!. New streak: ${data.Data[message.author.id]["streak"] + 1}, the number was ${data.Data[message.author.id]["RandomNumber"]}!`)
-          try {
-          message.channel.send(`You got it right! The next number is between 0 and ${maxNumber + maxNumber}, Guesses: ${Math.round(Math.min(Math.max(6, ((difficulty ^ 0.68) / 4) * 2), 30))}`);
-        } catch (error) {
-          message.channel.send("Make sure your DMs are open! you got the number right btw but it didnt count cuz error")
+    if (guessedNumber === data.Data[message.author.id]["RandomNumber"]) {
+      let difficulty;
+      let streak = data.Data[message.author.id]["streak"];
+      FailChannel.send(`<@${message.author.id}> won! New streak: ${streak + 1}, the number was ${data.Data[message.author.id]["RandomNumber"]}!`);
+      try {
+          message.channel.send(`You got it right! The next number is between 0 and ${maxNumber + maxNumber}. Guesses: ${Math.round(Math.min(Math.max(6, ((difficulty ^ 0.68) / 4) * 2), 30))}`);
+      } catch (error) {
+          message.channel.send("Make sure your DMs are open! You got the number right but it didn't count due to an error.");
           return;
+      }
+      data.Data[message.author.id]["MaxNumber"] = maxNumber + maxNumber;
+      data.Data[message.author.id]["LastWasRight"] = true;
+      data.Data[message.author.id]["streak"] += 1;
+      difficulty = Math.max(1, Math.pow(streak / 2, 1.15) * 6);
+      data.Data[message.author.id]["Guesses"] = Math.round(Math.min(Math.max(7, ((difficulty ^ 0.58) / 5) * 2), 30));
+      data.Data[message.author.id]["RandomNumber"] = Math.round(Math.random() * data.Data[message.author.id]["MaxNumber"]);
+      data.Data[message.author.id]["Wins"] += 1;
+  } else {
+      data.Data[message.author.id]["Guesses"] -= 1;
+      if (guessedNumber === data.Data[message.author.id]["RandomNumber"]) {
+        let difficulty;
+        let streak = data.Data[message.author.id]["streak"];
+        FailChannel.send(`<@${message.author.id}> won! New streak: ${streak + 1}, the number was ${data.Data[message.author.id]["RandomNumber"]}!`);
+        try {
+            message.channel.send(`You got it right! The next number is between 0 and ${maxNumber + maxNumber}. Guesses: ${Math.round(Math.min(Math.max(6, ((difficulty ^ 0.68) / 4) * 2), 30))}`);
+        } catch (error) {
+            message.channel.send("Make sure your DMs are open! You got the number right but it didn't count due to an error.");
+            return;
         }
-          data.Data[message.author.id]["MaxNumber"] = maxNumber + maxNumber;
-          data.Data[message.author.id]["LastWasRight"] = true;
-          data.Data[message.author.id]["streak"] += 1;
-          difficulty = Math.max(1, Math.pow(streak / 2, 1.15) * 6);
-          data.Data[message.author.id]["Guesses"] = Math.round(Math.min(Math.max(7, ((difficulty ^ 0.58) / 5) * 2), 30))
-          data.Data[message.author.id]["RandomNumber"] = Math.round(Math.random() * data.Data[message.author.id]["MaxNumber"]);
-          data.Data[message.author.id]["Wins"] += 1
-      } else {
-          data.Data[message.author.id]["Guesses"] -= 1;
-          if (data.Data[message.author.id]["Guesses"] <= 0) {
-              let difficulty;
-              let streak;
-              streak = data.Data[message.author.id]["streak"];
-              try {
-              message.channel.send("You ran out of guesses. Number:" + data.Data[message.author.id]["RandomNumber"] + "Restarting... The new number is between 0 and 99." + ` Guesses: ${data.Data[message.author.id]["Guesses"]}`);
-              FailChannel.send(`<@${message.author.id}> failed. Streak lost: ${data.Data[message.author.id]["streak"]}, their last guess was ${guessedNumber}, while the number was ${data.Data[message.author.id]["RandomNumber"]}!`)
+        data.Data[message.author.id]["MaxNumber"] = maxNumber + maxNumber;
+        data.Data[message.author.id]["LastWasRight"] = true;
+        data.Data[message.author.id]["streak"] += 1;
+        difficulty = Math.max(1, Math.pow(streak / 2, 1.15) * 6);
+        data.Data[message.author.id]["Guesses"] = Math.round(Math.min(Math.max(7, ((difficulty ^ 0.58) / 5) * 2), 30));
+        data.Data[message.author.id]["RandomNumber"] = Math.round(Math.random() * data.Data[message.author.id]["MaxNumber"]);
+        data.Data[message.author.id]["Wins"] += 1;
+    } else {
+        data.Data[message.author.id]["Guesses"] -= 1;
+        if (data.Data[message.author.id]["Guesses"] <= 0) {
+            let streak = data.Data[message.author.id]["streak"];
+            try {
+                message.channel.send(`You ran out of guesses. Number: ${data.Data[message.author.id]["RandomNumber"]}. Restarting... The new number is between 0 and 99. Guesses: 7`);
+                FailChannel.send(`<@${message.author.id}> failed. Streak lost: ${streak}, their last guess was ${guessedNumber}, while the number was ${data.Data[message.author.id]["RandomNumber"]}!`);
             } catch (error) {
-              message.channel.send("Make sure your DMs are open!")
-              return;
+                message.channel.send("Make sure your DMs are open!");
+                return;
             }
-              data.Data[message.author.id]["MaxNumber"] = 99;
-              data.Data[message.author.id]["LastWasRight"] = false;
-              data.Data[message.author.id]["streak"] = 0;
-              data.Data[message.author.id]["Lose"] += 1
-              difficulty = Math.max(1, Math.pow(streak / 2, 1.15) * 6);
-              data.Data[message.author.id]["Guesses"] = Math.round(Math.min(Math.max(7, ((difficulty ^ 0.68) / 4) * 2), 30))
-              data.Data[message.author.id]["RandomNumber"] = Math.round(Math.random() * 99);
-          } else {
-              if (guessedNumber > data.Data[message.author.id]["RandomNumber"]) {
+            data.Data[message.author.id]["MaxNumber"] = 99;
+            data.Data[message.author.id]["LastWasRight"] = false;
+            data.Data[message.author.id]["streak"] = 0;
+            data.Data[message.author.id]["Lose"] += 1;
+            let difficulty = Math.max(1, Math.pow(streak / 2, 1.15) * 6);
+            data.Data[message.author.id]["Guesses"] = Math.round(Math.min(Math.max(7, ((difficulty ^ 0.68) / 4) * 2), 30));
+            data.Data[message.author.id]["RandomNumber"] = Math.round(Math.random() * 99);
+        } else {
+            if (guessedNumber > data.Data[message.author.id]["RandomNumber"]) {
                 try {
-                  message.channel.send("A little too high. Try again." + ` Guesses: ${data.Data[message.author.id]["Guesses"]}`);
+                    message.channel.send(`A little too high. Try again. Guesses: ${data.Data[message.author.id]["Guesses"]}`);
                 } catch (error) {
-                  message.channel.send("Make sure your DMs are open!")
-                  return;
+                    message.channel.send("Make sure your DMs are open!");
+                    return;
                 }
-              } else {
+            } else {
                 try {
-                  message.channel.send("Too low. Go higher." + ` Guesses: ${data.Data[message.author.id]["Guesses"]}`);
+                    message.channel.send(`Too low. Go higher. Guesses: ${data.Data[message.author.id]["Guesses"]}`);
                 } catch (error) {
-                  message.channel.send("Make sure your DMs are open!")
-                  return;
+                    message.channel.send("Make sure your DMs are open!");
+                    return;
                 }
-              }
+            }
+          }
+  
           }
       }
       console.log(message.author.user + " " + JSON.stringify(data, null, 2))
@@ -492,10 +524,298 @@ client.on('messageCreate', async message => {
     let stringArray = topArray.join('\n');
     message.channel.send(stringArray);
     console.log("Leaderboard sent to channel");
+} else if (message.content.includes("??debil ")) {
+  let path = "./data.json"
+  let data = require("./data.json")
+  if (typeof data.Data[message.author.id] === 'undefined') {
+    data.Data[message.author.id] = {};
+  }
+  if (typeof data.Data[message.author.id]["Debilizm"] === 'undefined') {
+    data.Data[message.author.id]["Debilizm"] = 0;
+  }
+  if (typeof data.Data[message.author.id]["CooldownRate"] === 'undefined') {
+    data.Data[message.author.id]["CooldownRate"] = 0;
+  }
+  if (typeof data.Data[message.author.id]["Oceny"] === 'undefined') {
+    data.Data[message.author.id]["Oceny"] = 0;
+  }
+  let mentionedUserId = message.mentions.users.first()?.id;
+  if (mentionedUserId) {
+    if (typeof data.Data[mentionedUserId] === 'undefined') {
+      data.Data[mentionedUserId] = {};
+    }
+    if (typeof data.Data[mentionedUserId]["Debilizm"] === 'undefined') {
+      data.Data[mentionedUserId]["Debilizm"] = 0;
+    }
+    if (typeof data.Data[mentionedUserId]["Oceny"] === 'undefined') {
+      data.Data[mentionedUserId]["Oceny"] = 0;
+    }
+  } else {
+    mentionedUserId = message.author.id
+  }
+  let CooldownRate = data.Data[message.author.id]["CooldownRate"]
+  const member = message.guild.members.cache.get(mentionedUserId);
+    const hasSheHerRole = member.roles.cache.some(role => role.name === 'she/her');
+    const hasHeHimRole = member.roles.cache.some(role => role.name === 'he/him');
+  if (CooldownRate <= 0) {
+    data.Data[message.author.id]["CooldownRate"] = 30
+    data.Data[message.author.id]["Oceny"] += 1
+    data.Data[mentionedUserId]["Debilizm"] += 1
+      if (hasHeHimRole) {
+        // User has 'he/him' role
+        message.channel.send(`Oceniono <@${mentionedUserId}>: debil`)
+      } else if (hasSheHerRole) {
+        // User has 'she/her' role
+        message.channel.send(`Oceniono <@${mentionedUserId}>: debilka`)
+      } else {
+        // User has neither role
+        message.channel.send(`Oceniono <@${mentionedUserId}>: debil`)
+      }
+  } else {
+    message.channel.send("zamknij pizde Karen, nie tak szybko")
+  }
+  fs.writeFileSync(path, JSON.stringify(data, null, 2), 'utf8');
+} else if (command === "ranking") {
+  console.log("guessleaderboard command received");
+
+    let data;
+    let path = "./data.json";
+    
+
+    // Check if the file exists and parse the file
+    if (fs.existsSync(path)) {
+        data = JSON.parse(fs.readFileSync(path, 'utf8'));
+        console.log("Data file read successfully");
+    } else {
+        console.log("Data file does not exist");
+        return message.channel.send("Sorry, you don't have any data so the bot would crash <3 Play guess a bit first?");
+    }
+    if (typeof data.Data[message.author.id] === 'undefined') {
+      data.Data[message.author.id] = {};
+    }
+    if (typeof data.Data[message.author.id]["Debilizm"] === 'undefined') {
+      data.Data[message.author.id]["Debilizm"] = 0;
+    }
+    if (typeof data.Data[message.author.id]["CooldownRate"] === 'undefined') {
+      data.Data[message.author.id]["CooldownRate"] = 10;
+    }
+    if (typeof data.Data[message.author.id]["Oceny"] === 'undefined') {
+      data.Data[message.author.id]["Oceny"] = 0;
+    }
+    let mentionedUserId = message.mentions.users.first()?.id;
+    if (mentionedUserId) {
+      if (typeof data.Data[mentionedUserId] === 'undefined') {
+        data.Data[mentionedUserId] = {};
+      }
+      if (typeof data.Data[mentionedUserId]["Debilizm"] === 'undefined') {
+        data.Data[mentionedUserId]["Debilizm"] = 0;
+      }
+      if (typeof data.Data[mentionedUserId]["Oceny"] === 'undefined') {
+        data.Data[mentionedUserId]["Oceny"] = 0;
+      }
+    } else {
+      mentionedUserId = message.author.id
+    }
+
+    // Check if the user has data
+    if (!data.Data[message.author.id]) {
+        console.log("User does not have data");
+        return message.channel.send("Sorry, you don't have any data so the bot would crash <3 Play guess a bit first?");
+    }
+    if (!data.Data[message.author.id]["Debilizm"]) {
+      console.log("User does not have data");
+      return message.channel.send("Sorry, you don't have any data so the bot would crash <3 Play guess a bit first?");
+  }
+
+
+    // Create an array of { userId, wins } objects
+    let lbArray = [];
+    for (let userId in data.Data) {
+        if (data.Data[userId].Wins !== undefined) {
+            lbArray.push({ userId: userId, wins: data.Data[userId]["Debilizm"] });
+        }
+    }
+
+    console.log("Leaderboard array created", lbArray);
+
+    // Sort the array in descending order based on wins
+    lbArray.sort((a, b) => b.wins - a.wins);
+
+    // Create an array of the top users
+    let topArray = [];
+    for (let i = 0; i < lbArray.length && i < 10; i++) { // Limiting to top 10 users
+        topArray.push(`${i + 1} - <@${lbArray[i].userId}> - Debilizm: ${lbArray[i].wins}`);
+    }
+
+    console.log("Top array created", topArray);
+
+    // Convert the array to a string and send it as a message
+    let stringArray = topArray.join('\n');
+    message.channel.send(stringArray);
+    console.log("Leaderboard sent to channel");
+    // Check if the file exists and parse the file
+    if (fs.existsSync(path)) {
+      data = JSON.parse(fs.readFileSync(path, 'utf8'));
+      console.log("Data file read successfully");
+  } else {
+      console.log("Data file does not exist");
+      return message.channel.send("Sorry, you don't have any data so the bot would crash <3 Play guess a bit first?");
+  }
+  if (typeof data.Data[message.author.id] === 'undefined') {
+    data.Data[message.author.id] = {};
+  }
+  if (typeof data.Data[message.author.id]["Debilizm"] === 'undefined') {
+    data.Data[message.author.id]["Debilizm"] = 0;
+  }
+  if (typeof data.Data[message.author.id]["CooldownRate"] === 'undefined') {
+    data.Data[message.author.id]["CooldownRate"] = 10;
+  }
+  if (typeof data.Data[message.author.id]["Oceny"] === 'undefined') {
+    data.Data[message.author.id]["Oceny"] = 0;
+  }
+  let mentionedUserId2 = message.mentions.users.first()?.id;
+  if (mentionedUserId2) {
+    if (typeof data.Data[mentionedUserId2] === 'undefined') {
+      data.Data[mentionedUserId2] = {};
+    }
+    if (typeof data.Data[mentionedUserId2]["Debilizm"] === 'undefined') {
+      data.Data[mentionedUserId2]["Debilizm"] = 0;
+    }
+    if (typeof data.Data[mentionedUserId2]["Oceny"] === 'undefined') {
+      data.Data[mentionedUserId2]["Oceny"] = 0;
+    }
+  } else {
+    mentionedUserId2 = message.author.id
+  }
+
+  // Check if the user has data
+  if (!data.Data[message.author.id]) {
+      console.log("User does not have data");
+      return message.channel.send("Sorry, you don't have any data so the bot would crash <3 Play guess a bit first?");
+  }
+  if (!data.Data[message.author.id]["Oceny"]) {
+    console.log("User does not have data");
+    return message.channel.send("Sorry, you don't have any data so the bot would crash <3 Play guess a bit first?");
 }
 
 
-  
+  // Create an array of { userId, wins } objects
+  let lbArray2 = [];
+  for (let userId in data.Data) {
+      if (data.Data[userId].Oceny !== undefined) {
+          lbArray2.push({ userId: userId, wins: data.Data[userId]["Oceny"] });
+      }
+  }
+
+  console.log("Leaderboard array created", lbArray);
+
+  // Sort the array in descending order based on wins
+  lbArray.sort((a, b) => b.wins - a.wins);
+
+  // Create an array of the top users
+  let topArray2 = [];
+  for (let i = 0; i < lbArray.length && i < 10; i++) { // Limiting to top 10 users
+      topArray2.push(`${i + 1} - <@${lbArray[i].userId}> - Oceny: ${lbArray[i].wins}`);
+  }
+
+  console.log("Top array created", topArray);
+
+  // Convert the array to a string and send it as a message
+  let stringArray2 = topArray2.join('\n');
+  message.channel.send(stringArray2);
+  console.log("Leaderboard sent to channel");
+  fs.writeFileSync(path, JSON.stringify(data, null, 2), 'utf8');
+} else if (command === "ocena"){
+  let data;
+    let path = "./data.json";
+    
+
+    // Check if the file exists and parse the file
+    if (fs.existsSync(path)) {
+        data = JSON.parse(fs.readFileSync(path, 'utf8'));
+        console.log("Data file read successfully");
+    } else {
+        console.log("Data file does not exist");
+        return message.channel.send("Sorry, you don't have any data so the bot would crash <3 Play guess a bit first?");
+    }
+    if (typeof data.Data[message.author.id] === 'undefined') {
+      data.Data[message.author.id] = {};
+    }
+    if (typeof data.Data[message.author.id]["Debilizm"] === 'undefined') {
+      data.Data[message.author.id]["Debilizm"] = 0;
+    }
+    if (typeof data.Data[message.author.id]["CooldownRate"] === 'undefined') {
+      data.Data[message.author.id]["CooldownRate"] = 10;
+    }
+    if (typeof data.Data[message.author.id]["Oceny"] === 'undefined') {
+      data.Data[message.author.id]["Oceny"] = 0;
+    }
+    let mentionedUserId = message.mentions.users.first()?.id;
+    if (mentionedUserId) {
+      if (typeof data.Data[mentionedUserId] === 'undefined') {
+        data.Data[mentionedUserId] = {};
+      }
+      if (typeof data.Data[mentionedUserId]["Debilizm"] === 'undefined') {
+        data.Data[mentionedUserId]["Debilizm"] = 0;
+      }
+      if (typeof data.Data[mentionedUserId]["Oceny"] === 'undefined') {
+        data.Data[mentionedUserId]["Oceny"] = 0;
+      }
+    } else {
+      mentionedUserId = message.author.id
+    }
+
+    message.channel.send("Zdobywanie informacji..")
+    // pointless wait timer because yes
+    setTimeout(() => {
+      message.channel.send(`Statystyki dla <@${mentionedUserId}>\n\nDebilizm: ${data.Data[mentionedUserId]["Debilizm"]}\n\nOcenianie innych: ${data.Data[mentionedUserId]["Oceny"]}`)
+    }, 500)
+    fs.writeFileSync(path, JSON.stringify(data, null, 2), 'utf8');
+}
+if (command === "restart"){
+    if (!message.member.hasPermission('ADMINISTRATOR')) {
+      return message.channel.send("wypierdalaj kurwo jebana");
+    }
+    
+    await message.channel.send("??eval process.exit();");
+    process.exit();
+}
+
+/* Legacy bot commands (Shwdow v2) */
+
+if (command === "sex") {
+  let mentionedFirst = message.mentions.users.first().id
+  if (mentionedfirst) {
+
+  } else {
+    mentionedFirst = message.author.id
+  }
+  if (mentionedFirst === message.author.id) {
+    let Channel = client.channels.cache.get(1269049650195992709)
+    Channel.send(`<@${message.author.id}> próbował(a) sie ruchać! xDDD`)
+  } else {
+  message.channel.send(`<@${message.author.id}> rucha <@${mentionedFirst}>, o kurwa`)
+  }
+}
+if (command === "publicsex") {
+  let mentionedFirst = message.mentions.users.first().id
+  if (mentionedfirst) {
+
+  } else {
+    mentionedFirst = message.author.id
+  }
+  if (mentionedFirst === message.author.id) {
+    let Channel = client.channels.cache.get(1269049650195992709)
+    Channel.send(`<@${message.author.id}> próbował(a) sie ruchać! xDDD`)
+  } else {
+    let Channel = client.channels.cache.get(1269049650195992709)
+    Channel.send(`<@${message.author.id}> rucha <@${mentionedFirst}>, o kurwa`)
+  }
+}
+
+} catch (error) {
+  message.channel.send(`\`\`\`${error}\`\`\`\n\nSomething went wrong. Context: ${message.content}\n\n <@1260916274804953171>`)
+}
 });
 
 // Separate event listener for botban and botunban commands

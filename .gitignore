@@ -1,2 +1,7 @@
-config.json
-data.json
+# Ignore everything
+*
+
+# But not these files...
+!.gitignore
+!README.md
+!bot.js

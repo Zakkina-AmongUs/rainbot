@@ -7,7 +7,10 @@
       "LastWasRight": true,
       "streak": 2,
       "Wins": 2,
-      "Lose": 0
+      "Lose": 0,
+      "Debilizm": 0,
+      "CooldownRate": -8089,
+      "Oceny": 5
     },
     "869148160558264321": {
       "RandomNumber": 8,
@@ -27,6 +30,10 @@
       "streak": 0,
       "Wins": 0,
       "Lose": 0
+    },
+    "1027140189627371582": {
+      "Debilizm": 69,
+      "Oceny": 0
     }
   }
 }
